@@ -17,7 +17,23 @@ id_std[59] = 3098
 num_classes = 6
 
 
-def compute_metrics(dist_matrix,match_matrix,pred_num,gt_num,sigma,level):
+def compute_metrics(dist_matrix, match_matrix, pred_num, gt_num, sigma, level):
+    """
+    Args:
+        dist_matrix
+        match_matrix: 
+        pred_num
+        gt_num
+        sigma
+        level
+
+    Returns:
+        tp
+        fp
+        fn
+        tp_c
+        fn_c
+    """
     for i_pred_p in range(pred_num):
         pred_dist = dist_matrix[i_pred_p,:]
         match_matrix[i_pred_p,:] = pred_dist<=sigma
@@ -50,8 +66,8 @@ def main():
     metrics_l = {'tp':AverageMeter(), 'fp':AverageMeter(), 'fn':AverageMeter(), 'tp_c':AverageCategoryMeter(num_classes), 'fn_c':AverageCategoryMeter(num_classes)}
 
     pred_data, gt_data = read_pred_and_gt(pred_file,gt_file)
+
     for i_sample in id_std:
-        print(i_sample) 
         # init               
         gt_p,pred_p,fn_gt_index,tp_pred_index,fp_pred_index= [],[],[],[],[]
         tp_s,fp_s,fn_s,tp_l,fp_l,fn_l = [0,0,0,0,0,0]
@@ -59,13 +75,13 @@ def main():
         fn_c_s = np.zeros([num_classes])
         tp_c_l = np.zeros([num_classes])
         fn_c_l = np.zeros([num_classes])
-
+        # 图像中没有人
         if gt_data[i_sample]['num'] ==0 and pred_data[i_sample]['num'] !=0:            
             pred_p =  pred_data[i_sample]['points']
             fp_pred_index = np.array(range(pred_p.shape[0]))
             fp_s = fp_pred_index.shape[0]
             fp_l = fp_pred_index.shape[0]
-
+        # 一个人都没有预测出来
         if pred_data[i_sample]['num'] ==0 and gt_data[i_sample]['num'] !=0:
             gt_p = gt_data[i_sample]['points']
             level = gt_data[i_sample]['level']
@@ -75,7 +91,7 @@ def main():
             for i_class in range(num_classes):
                 fn_c_s[i_class] = (level[fn_gt_index]==i_class).sum()
                 fn_c_l[i_class] = (level[fn_gt_index]==i_class).sum()
-
+        # 正常预测
         if gt_data[i_sample]['num'] !=0 and pred_data[i_sample]['num'] !=0:
             pred_p =  pred_data[i_sample]['points']    
             gt_p = gt_data[i_sample]['points']
@@ -88,8 +104,8 @@ def main():
             match_matrix = np.zeros(dist_matrix.shape,dtype=bool)
 
             # sigma_s and sigma_l
-            tp_s,fp_s,fn_s,tp_c_s,fn_c_s = compute_metrics(dist_matrix,match_matrix,pred_p.shape[0],gt_p.shape[0],sigma_s,level)
-            tp_l,fp_l,fn_l,tp_c_l,fn_c_l = compute_metrics(dist_matrix,match_matrix,pred_p.shape[0],gt_p.shape[0],sigma_l,level)
+            tp_s,fp_s,fn_s,tp_c_s,fn_c_s = compute_metrics(dist_matrix,  match_matrix,  pred_p.shape[0],  gt_p.shape[0],  sigma_s,  level)
+            tp_l,fp_l,fn_l,tp_c_l,fn_c_l = compute_metrics(dist_matrix,  match_matrix,  pred_p.shape[0],  gt_p.shape[0],  sigma_l,  level)
 
 
         metrics_s['tp'].update(tp_s)

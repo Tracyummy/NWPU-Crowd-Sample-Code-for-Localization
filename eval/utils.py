@@ -1,22 +1,24 @@
-import os
-import math
 import numpy as np
-import time
-import random
-import shutil
-import cv2
 from PIL import Image
-
-import torch
 from torch import nn
 import torch.nn.functional as F
 import torchvision.utils as vutils
 import torchvision.transforms as standard_transforms
+from scipy.optimize import linear_sum_assignment
+import sys
 
 # Hungarian method for bipartite graph
 def hungarian(matrixTF):
+    """
+    Args:
+        matrixTF: (num_pred, num_gt)
+
+    Returns:
+        ans (int): number of true positive.
+        assign (num_pred, num_gt): True or False, representing match result.
+    """
     # matrix to adjacent matrix
-    edges = np.argwhere(matrixTF)
+    edges = np.argwhere(matrixTF)   # keep the same shape as matrixTF
     lnum, rnum = matrixTF.shape
     graph = [[] for _ in range(lnum)]
     for edge in edges:
@@ -124,5 +126,13 @@ class AverageCategoryMeter(object):
         self.cur_val = cur_val
         self.sum += cur_val
 
+def Hungarian(cost):
+    cost = np.arange(12, 0, -1).reshape(4,3)
+    print(cost)
+    row_id, col_id = linear_sum_assignment(cost_matrix = cost)
+    cost[row_id, col_id].sum()
+    print(row_id, col_id)
 
 
+if __name__ == '__main__':
+    pass
