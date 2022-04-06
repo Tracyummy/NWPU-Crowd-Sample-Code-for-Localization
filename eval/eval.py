@@ -20,19 +20,19 @@ num_classes = 6
 def compute_metrics(dist_matrix, match_matrix, pred_num, gt_num, sigma, level):
     """
     Args:
-        dist_matrix
-        match_matrix: 
-        pred_num
-        gt_num
-        sigma
-        level
+        dist_matrix: cost matrix, each element represents l2 distance between every pairs.
+        match_matrix: bool matrix. True represents that two elements of the pair could be match.
+        pred_num (int) : number of prediction points.
+        gt_num (int) : ground truth number of points.
+        sigma (int) : threshold of distance.
+        level ( List[int] ) : crowdedness.
 
     Returns:
-        tp
-        fp
-        fn
-        tp_c
-        fn_c
+        tp (int)
+        fp (int)
+        fn (int)
+        tp_c (List [num_classes])
+        fn_c (List [num_classes])
     """
     for i_pred_p in range(pred_num):
         pred_dist = dist_matrix[i_pred_p,:]
@@ -66,7 +66,8 @@ def main():
     metrics_l = {'tp':AverageMeter(), 'fp':AverageMeter(), 'fn':AverageMeter(), 'tp_c':AverageCategoryMeter(num_classes), 'fn_c':AverageCategoryMeter(num_classes)}
 
     pred_data, gt_data = read_pred_and_gt(pred_file,gt_file)
-
+    
+    # for each image sample
     for i_sample in id_std:
         # init               
         gt_p,pred_p,fn_gt_index,tp_pred_index,fp_pred_index= [],[],[],[],[]
